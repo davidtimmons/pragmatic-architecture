@@ -4,6 +4,6 @@ import Fee from ".";
 const { getMarketplaceFee } = Fee;
 
 test("getMarketplaceFee() should return the marketplace fee", async (t) => {
-  const fee = await getMarketplaceFee();
-  t.is(fee, 0.05);
+  const maybeFee = await getMarketplaceFee();
+  t.is(maybeFee._unsafeUnwrap(), 0.05);
 });

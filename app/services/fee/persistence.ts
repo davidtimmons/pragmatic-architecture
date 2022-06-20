@@ -1,21 +1,35 @@
-import Db from "../../database";
+import { err, ok } from "neverthrow";
+import Infrastructure, { PromisedResult, TMatch } from "../../infrastructure";
+import Database, { TFailure as TDatabaseFailure } from "../../database";
+import { defineFailure, TFailure } from "./errors";
 
 /// TYPES ///
 
-type TMarketplaceFee = { marketplace: number };
+type TFeeRecord = { marketplace: number };
+type TFailureModes = TFailure | TDatabaseFailure;
+type TMaybeFee = TMatch<number, TFailureModes>;
 
 /// LOGIC ///
 
-async function getMarketplaceFee(): Promise<number | Error> {
-  const maybeResult = await Db.retrieve<TMarketplaceFee>(
-    "SELECT marketplace FROM Fee ORDER BY id ASC LIMIT 1"
+/**
+ * Get the marketplace fee from the database.
+ */
+async function getMarketplaceFee(): PromisedResult<number, TFailureModes> {
+  const field = "marketplace";
+  const maybeFeeRecords = await Database.retrieve<TFeeRecord>(
+    `SELECT ${field} FROM Fee ORDER BY id ASC LIMIT 1`
   );
 
-  if (maybeResult instanceof Error || maybeResult.length < 1) {
-    return new Error("Could not retrieve marketplace fee");
-  }
+  const handleSuccess = (feeRecords: TFeeRecord[]) => {
+    if (feeRecords.length < 1 || !(field in feeRecords[0])) {
+      return err(defineFailure("FAILED_TO_RETRIEVE_MARKETPLACE_FEE"));
+    } else {
+      return ok(feeRecords[0].marketplace);
+    }
+  };
 
-  return maybeResult[0].marketplace;
+  const maybeFee = maybeFeeRecords.match<TMaybeFee>(handleSuccess, Infrastructure.handleFailure);
+  return maybeFee;
 }
 
 export default { getMarketplaceFee };
