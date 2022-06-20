@@ -5,7 +5,7 @@ import Path from "node:path";
 import Sqlite from "sqlite";
 import SqliteWrapper from "sqlite3";
 import { Result, ResultAsync, ok, err } from "neverthrow";
-import { PromisedErr, PromisedResult } from "../infrastructure";
+import Infrastructure, { PromisedErr, PromisedResult } from "../infrastructure";
 import { defineFailure, TFailure } from "./errors";
 
 const DB_PATH = Path.join(process.cwd(), "app", "database", "marketplace.db");
@@ -33,7 +33,9 @@ function selectDatabase() {
  * @param dbFailure - Database failure object containing error information
  */
 function handleFailure(dbFailure: TFailure): PromisedErr<TFailure> {
-  return Promise.reject(err(dbFailure));
+  // Returning a rejected promise will end async function execution if not enclosed within a
+  // try-catch block. The app should report errors but not automatically fail when they occur.
+  return Promise.resolve(err(dbFailure));
 }
 
 /**
@@ -86,9 +88,7 @@ async function retrieve<T>(sql: string, ...params: any[]): PromisedResult<T[], T
   const maybeResults = await maybeDb.match(handleSuccess, handleFailure);
 
   const maybeCloseFailed = await closeDatabase(maybeDb);
-  maybeCloseFailed.mapErr((closeFailure: TFailure) => {
-    console.error(closeFailure);
-  });
+  maybeCloseFailed.mapErr(Infrastructure.reportFailure);
 
   return maybeResults;
 }
@@ -114,9 +114,7 @@ async function run(
   const maybeResult = await maybeDb.match(handleSuccess, handleFailure);
 
   const maybeCloseFailed = await closeDatabase(maybeDb);
-  maybeCloseFailed.mapErr((closeFailure: TFailure) => {
-    console.error(closeFailure);
-  });
+  maybeCloseFailed.mapErr(Infrastructure.reportFailure);
 
   return maybeResult;
 }
@@ -124,11 +122,10 @@ async function run(
 export const privateExports = {
   DB_PATH,
   TEST_DB_PATH,
-  openDatabase,
-  selectDatabase,
-  // TODO: Add tests for these
   closeDatabase,
   handleFailure,
+  openDatabase,
+  selectDatabase,
 };
 
 export default { retrieve, run };

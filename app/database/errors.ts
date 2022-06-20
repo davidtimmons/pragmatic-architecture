@@ -12,8 +12,12 @@ type TFailure = TGenericFailure<TDatabaseErrorType>;
 
 /// LOGIC ///
 
-// TODO: Add tests for this
-
+/**
+ * Creates a failure oject containing useful information about the encountered error.
+ *
+ * @param errorType - Error strings customized to this layer
+ * @param error - Optional JavaScript error object
+ */
 function defineFailure(errorType: TDatabaseErrorType, error?: Error): TFailure {
   switch (errorType) {
     case "FAILED_TO_OPEN_DATABASE":

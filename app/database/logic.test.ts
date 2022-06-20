@@ -2,7 +2,7 @@ import test from "ava";
 import { env } from "node:process";
 import { privateExports } from "./logic";
 
-const { DB_PATH, TEST_DB_PATH, selectDatabase } = privateExports;
+const { DB_PATH, TEST_DB_PATH, handleFailure, selectDatabase } = privateExports;
 
 test("selectDatabase() should return the correct database path", (t) => {
   const originalEnv = process.env.NODE_ENV;
@@ -22,4 +22,14 @@ test("selectDatabase() should return the correct database path", (t) => {
     t.is(result, TEST_DB_PATH);
   }
   env.NODE_ENV = originalEnv;
+});
+
+test("handleFailure() should return a promised failure object", async (t) => {
+  const result = await handleFailure({
+    type: "FAILED_TO_RUN_SQL",
+    reason: "",
+    error: new Error(),
+  });
+
+  t.true(result.isErr());
 });

@@ -6,6 +6,9 @@ type TGenericFailure<T extends string> = {
   error: Error | undefined;
 };
 
+// The types below break the internal convention by not prepending the names with a T.
+// However, in this case, leaving off the T arguably improves code readability.
+
 type PromisedErr<E> = Promise<Err<never, E>>;
 type PromisedResult<T, E> = Promise<Result<T, E>>;
 
