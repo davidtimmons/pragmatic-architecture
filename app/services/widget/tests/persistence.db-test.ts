@@ -1,8 +1,8 @@
 import test from "ava";
-import Db from "../../database";
-import Widget, { TWidgetRecord } from ".";
+import Db from "../../../database";
+import Widget, { TWidgetRecord } from "..";
 
-const { createWidget, getWidget, updatePurchased } = Widget;
+const { createWidget, getWidget, setPurchased } = Widget;
 
 test.before("Insert a user record into the database", async () => {
   // The table should be empty, so the record should have an id equal to 1.
@@ -36,8 +36,8 @@ test("createWidget() should create a widget record", async (t) => {
   await createWidget(record);
 
   // Get the new record and then reset the tables.
-  const result = await Db.retrieve<TWidgetRecord>("SELECT * FROM Widget WHERE id_seller=?", 1);
-  if (result instanceof Error) throw result;
+  const maybeResult = await Db.retrieve<TWidgetRecord>("SELECT * FROM Widget WHERE id_seller=?", 1);
+  const result = maybeResult._unsafeUnwrap();
 
   // Test the result.
   t.is(result.length, 1);
@@ -69,8 +69,8 @@ test("getWidget() should retrieve a widget record", async (t) => {
   await createWidget(record);
 
   // Attempt to get the new record.
-  const result = await getWidget(1);
-  if (result instanceof Error) throw result;
+  const maybeResult = await getWidget(1);
+  const result = maybeResult._unsafeUnwrap();
 
   // Test the result.
   t.is(result.id, 1);
@@ -80,7 +80,7 @@ test("getWidget() should retrieve a widget record", async (t) => {
   t.is(result.price, record.price);
 });
 
-test("updatePurchased() should modify the widget purchased status", async (t) => {
+test("setPurchased() should set the widget purchased status", async (t) => {
   // Insert a Widget record into the test database and modify the purchased status.
   await Db.run(
     `INSERT INTO Widget (id_seller, description, price)
@@ -92,11 +92,11 @@ test("updatePurchased() should modify the widget purchased status", async (t) =>
     }
   );
 
-  await updatePurchased(1, true);
+  await setPurchased(1, true);
 
   // Get the new record.
-  const result = await getWidget(1);
-  if (result instanceof Error) throw result;
+  const maybeResult = await getWidget(1);
+  const result = maybeResult._unsafeUnwrap();
 
   // Test the result.
   t.is(result.purchased, 1);

@@ -2,7 +2,7 @@
  * Provides a facade to work with the backing database.
  */
 import Path from "node:path";
-import Sqlite from "sqlite";
+import Sqlite, { open } from "sqlite";
 import SqliteWrapper from "sqlite3";
 import { Result, ResultAsync, ok, err } from "neverthrow";
 import Infrastructure, { PromisedResult } from "../infrastructure";
@@ -14,6 +14,7 @@ const TEST_DB_PATH = Path.join(process.cwd(), "app", "database", "marketplace.te
 /// TYPES ///
 
 type TDatabase = Sqlite.Database<SqliteWrapper.Database, SqliteWrapper.Statement>;
+type TDbRunResult = Sqlite.ISqlite.RunResult;
 
 /// LOGIC ///
 
@@ -37,7 +38,7 @@ function openDatabase(databasePath: string): ResultAsync<TDatabase, TFailure> {
     defineFailure("FAILED_TO_OPEN_DATABASE", openErr as Error);
 
   return ResultAsync.fromPromise(
-    Sqlite.open({ filename: databasePath, driver: SqliteWrapper.Database }),
+    open({ filename: databasePath, driver: SqliteWrapper.Database }),
     handleFailure
   );
 }
@@ -88,10 +89,7 @@ async function retrieve<T>(sql: string, ...params: any[]): PromisedResult<T[], T
  * @param sql - Arbitrary SQL query that should not return database records
  * @param params - Arbitrary parameters to interpolate with the SQL query string
  */
-async function run(
-  sql: string,
-  ...params: any[]
-): PromisedResult<Sqlite.ISqlite.RunResult, TFailure> {
+async function run(sql: string, ...params: any[]): PromisedResult<TDbRunResult, TFailure> {
   const maybeDb = await openDatabase(selectDatabase());
 
   const handleAsyncSuccess = async (openDb: TDatabase) =>
@@ -116,4 +114,5 @@ export const privateExports = {
   selectDatabase,
 };
 
+export type { TDbRunResult };
 export default { retrieve, run };

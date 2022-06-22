@@ -1,4 +1,7 @@
-import Db from "../../database";
+import { Result, err, ok } from "neverthrow";
+import Database, { TFailure as TDatabaseFailure, TDbRunResult } from "../../database";
+import Infrastructure, { PromisedResult, TMatch } from "../../infrastructure";
+import { defineFailure, TFailure } from "./errors";
 
 /// TYPES ///
 
@@ -13,10 +16,19 @@ export type TWidgetRecord = TWidget & {
   purchased: 0 | 1;
 };
 
+type TFailureModes = TFailure | TDatabaseFailure;
+type TMaybeRunResult = TMatch<TDbRunResult, TFailureModes>;
+type TMaybeWidget = TMatch<TWidgetRecord, TFailureModes>;
+
 /// LOGIC ///
 
-async function createWidget(widget: TWidget): Promise<void | Error> {
-  const maybeResult = await Db.run(
+/**
+ * Create a new widget record.
+ *
+ * @param widget - Object containing the relevant widget information
+ */
+async function createWidget(widget: TWidget): PromisedResult<TDbRunResult, TFailureModes> {
+  const maybeRunResult = await Database.run(
     `INSERT INTO Widget (id_seller, description, price)
      VALUES ($id_seller, $description, $price)`,
     {
@@ -26,28 +38,66 @@ async function createWidget(widget: TWidget): Promise<void | Error> {
     }
   );
 
-  if (maybeResult instanceof Error) return new Error("Could not create widget");
+  const handleSuccess = (result: TDbRunResult) => {
+    if (result.lastID && result.lastID > 0) {
+      return ok(result);
+    } else {
+      return err(defineFailure("FAILED_TO_CREATE_WIDGET"));
+    }
+  };
+
+  return maybeRunResult.match<TMaybeRunResult>(handleSuccess, Infrastructure.handleFailure);
 }
 
-async function getWidget(widgetId: number): Promise<TWidgetRecord | Error> {
-  const maybeResult = await Db.retrieve<TWidgetRecord>("SELECT * FROM Widget WHERE id=?", widgetId);
+/**
+ * Retrieve the specified widget from the database.
+ *
+ * @param widgetId - ID associated with the desired widget
+ */
+async function getWidget(widgetId: number): PromisedResult<TWidgetRecord, TFailureModes> {
+  const maybeWidgetRecords = await Database.retrieve<TWidgetRecord>(
+    "SELECT * FROM Widget WHERE id=?",
+    widgetId
+  );
 
-  if (maybeResult instanceof Error || maybeResult.length < 1) {
-    return new Error("Could not retrieve widget");
-  }
+  const handleSuccess = (widgetRecords: TWidgetRecord[]) => {
+    if (widgetRecords.length < 1) {
+      return err(defineFailure("FAILED_TO_RETRIEVE_WIDGET"));
+    } else {
+      return ok(widgetRecords[0]);
+    }
+  };
 
-  return maybeResult[0];
+  return maybeWidgetRecords.match<TMaybeWidget>(handleSuccess, Infrastructure.handleFailure);
 }
 
-async function updatePurchased(widgetId: number, purchased: boolean): Promise<void | Error> {
+/**
+ * Set the purchased status associated with this widget.
+ *
+ * @param widgetId - ID associated with this widget
+ * @param purchased - New purchased status for this widget
+ */
+async function setPurchased(
+  widgetId: number,
+  purchased: boolean
+): PromisedResult<TDbRunResult, TFailureModes> {
   const purchasedValue = purchased ? 1 : 0;
-  const maybeResult = await Db.run(
+
+  const maybeRunResult = await Database.run(
     "UPDATE Widget SET purchased=? WHERE id=?",
     purchasedValue,
     widgetId
   );
 
-  if (maybeResult instanceof Error) return new Error("Could not update widget purchased status");
+  const handleSuccess = (result: TDbRunResult) => {
+    if (result?.changes && result.changes > 0) {
+      return ok(result);
+    } else {
+      return err(defineFailure("FAILED_TO_SET_PURCHASED_STATUS"));
+    }
+  };
+
+  return maybeRunResult.match<TMaybeRunResult>(handleSuccess, Infrastructure.handleFailure);
 }
 
-export default { createWidget, getWidget, updatePurchased };
+export default { createWidget, getWidget, setPurchased };

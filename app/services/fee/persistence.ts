@@ -1,6 +1,6 @@
 import { err, ok } from "neverthrow";
-import Infrastructure, { PromisedResult, TMatch } from "../../infrastructure";
 import Database, { TFailure as TDatabaseFailure } from "../../database";
+import Infrastructure, { PromisedResult, TMatch } from "../../infrastructure";
 import { defineFailure, TFailure } from "./errors";
 
 /// TYPES ///
@@ -28,8 +28,7 @@ async function getMarketplaceFee(): PromisedResult<number, TFailureModes> {
     }
   };
 
-  const maybeFee = maybeFeeRecords.match<TMaybeFee>(handleSuccess, Infrastructure.handleFailure);
-  return maybeFee;
+  return maybeFeeRecords.match<TMaybeFee>(handleSuccess, Infrastructure.handleFailure);
 }
 
 export default { getMarketplaceFee };

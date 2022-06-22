@@ -1,5 +1,5 @@
 import test from "ava";
-import { TFailure, defineFailure } from "./errors";
+import { TFailure, defineFailure } from "../errors";
 
 test("defineFailure() should return a failure object with error information", (t) => {
   const testFailure01: TFailure = {

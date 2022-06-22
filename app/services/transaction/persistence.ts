@@ -1,4 +1,7 @@
-import Db from "../../database";
+import { err, ok } from "neverthrow";
+import Database, { TFailure as TDatabaseFailure, TDbRunResult } from "../../database";
+import Infrastructure, { PromisedResult, TMatch } from "../../infrastructure";
+import { defineFailure, TFailure } from "./errors";
 
 /// TYPES ///
 
@@ -13,10 +16,21 @@ export type TTransactionRecord = TTransaction & {
   datetime_unix: number;
 };
 
+type TFailureModes = TFailure | TDatabaseFailure;
+type TMaybeRunResult = TMatch<TDbRunResult, TFailureModes>;
+
 /// LOGIC ///
 
-async function createTransaction(transaction: TTransaction): Promise<void | Error> {
-  const maybeError = await Db.run(
+/**
+ * Create a transaction record noting the buyer, seller, and widget associated
+ * with this transaction.
+ *
+ * @param transaction - Object containing foreign database keys associated with this transaction
+ */
+async function createTransaction(
+  transaction: TTransaction
+): PromisedResult<TDbRunResult, TFailureModes> {
+  const maybeRunResult = await Database.run(
     `INSERT INTO Transaction_Record (id_buyer, id_seller, id_widget)
      VALUES ($idBuyer, $idSeller, $idWidget)`,
     {
@@ -26,7 +40,15 @@ async function createTransaction(transaction: TTransaction): Promise<void | Erro
     }
   );
 
-  if (maybeError instanceof Error) return new Error("Could not create transaction");
+  const handleSuccess = (result: TDbRunResult) => {
+    if (result?.lastID && result.lastID > 0) {
+      return ok(result);
+    } else {
+      return err(defineFailure("FAILED_TO_CREATE_TRANSACTION"));
+    }
+  };
+
+  return maybeRunResult.match<TMaybeRunResult>(handleSuccess, Infrastructure.handleFailure);
 }
 
 export default { createTransaction };

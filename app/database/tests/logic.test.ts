@@ -1,6 +1,6 @@
 import test from "ava";
 import { env } from "node:process";
-import { privateExports } from "./logic";
+import { privateExports } from "../logic";
 
 const { DB_PATH, TEST_DB_PATH, selectDatabase } = privateExports;
 

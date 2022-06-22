@@ -1,6 +1,6 @@
 import test from "ava";
-import Db from "../../database";
-import Transaction, { TTransactionRecord } from ".";
+import Db from "../../../database";
+import Transaction, { TTransactionRecord } from "..";
 
 const { createTransaction } = Transaction;
 
@@ -40,10 +40,11 @@ test("createTransaction() should create a widget transaction record", async (t) 
     id_widget: 1,
   });
 
-  const result = await Db.retrieve<TTransactionRecord>(
+  const maybeResult = await Db.retrieve<TTransactionRecord>(
     "SELECT * FROM Transaction_Record WHERE id=1"
   );
-  if (result instanceof Error) throw result;
+
+  const result = maybeResult._unsafeUnwrap();
 
   t.is(result[0].id, 1);
   t.truthy(result[0].datetime_unix);

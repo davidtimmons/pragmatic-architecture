@@ -1,2 +1,2 @@
-export { default } from "./persistence";
 export type { TTransactionRecord } from "./persistence";
+export { default } from "./logic";

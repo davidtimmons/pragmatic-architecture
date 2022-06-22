@@ -22,6 +22,8 @@ function handleAsyncFailure<T extends string>(
 function handleFailure<T extends string>(
   failure: TGenericFailure<T>
 ): Err<never, TGenericFailure<T>> {
+  // Returning a rejected promise will end async function execution if not enclosed within a
+  // try-catch block. The app should report errors but not automatically fail when they occur.
   return err(failure);
 }
 

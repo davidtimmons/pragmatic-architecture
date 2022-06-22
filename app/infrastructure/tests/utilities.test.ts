@@ -1,5 +1,5 @@
 import test from "ava";
-import Utilities from "./utilities";
+import Utilities from "../utilities";
 
 const { handleAsyncFailure, handleFailure } = Utilities;
 

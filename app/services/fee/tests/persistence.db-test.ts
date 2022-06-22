@@ -1,5 +1,5 @@
 import test from "ava";
-import Fee from ".";
+import Fee from "..";
 
 const { getMarketplaceFee } = Fee;
 

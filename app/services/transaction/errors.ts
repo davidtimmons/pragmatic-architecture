@@ -2,8 +2,8 @@ import { TGenericFailure } from "../../infrastructure";
 
 /// TYPES ///
 
-type TFeeErrorType = "FAILED_TO_RETRIEVE_MARKETPLACE_FEE";
-type TFailure = TGenericFailure<TFeeErrorType>;
+type TTransactionErrorType = "FAILED_TO_CREATE_TRANSACTION";
+type TFailure = TGenericFailure<TTransactionErrorType>;
 
 /// LOGIC ///
 
@@ -13,18 +13,18 @@ type TFailure = TGenericFailure<TFeeErrorType>;
  * @param errorType - Error strings customized to this service
  * @param error - Optional JavaScript error object
  */
-function defineFailure(errorType: TFeeErrorType, error?: Error): TFailure {
+function defineFailure(errorType: TTransactionErrorType, error?: Error): TFailure {
   switch (errorType) {
-    case "FAILED_TO_RETRIEVE_MARKETPLACE_FEE":
+    case "FAILED_TO_CREATE_TRANSACTION":
       return {
         type: errorType,
-        reason: "Failed to retrieve the marketplace fee from its database table",
+        reason: "Failed to create a new transaction record in the database",
         error,
       };
       break;
 
     default:
-      throw new Error("Please specify a fee service failure mode");
+      throw new Error("Please specify a transaction service failure mode");
       break;
   }
 }

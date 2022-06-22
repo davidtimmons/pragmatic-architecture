@@ -14,9 +14,4 @@ type TMatch<T1, T2> = Ok<T1, never> | Err<never, T2>;
 type PromisedErr<E> = Promise<Err<never, E>>;
 type PromisedResult<T, E> = Promise<Result<T, E>>;
 
-export type {
-  PromisedErr,
-  PromisedResult,
-  TGenericFailure,
-  TMatch,
-};
+export type { PromisedErr, PromisedResult, TGenericFailure, TMatch };
