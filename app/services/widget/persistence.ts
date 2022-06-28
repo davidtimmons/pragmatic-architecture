@@ -100,4 +100,5 @@ async function setPurchased(
   return maybeRunResult.match<TMaybeRunResult>(handleSuccess, Infrastructure.handleFailure);
 }
 
+export type { TFailureModes };
 export default { createWidget, getWidget, setPurchased };

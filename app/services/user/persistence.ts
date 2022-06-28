@@ -115,6 +115,7 @@ async function setAccountBalance(
   return maybeRunResult.match<TMaybeRunResult>(handleSuccess, Infrastructure.handleFailure);
 }
 
+export type { TFailureModes };
 export default {
   createUser,
   getUser,

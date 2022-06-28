@@ -1,5 +1,5 @@
 import test from "ava";
-import { privateExports } from "./logic";
+import { privateExports } from "../logic";
 
 const { calculateBalances } = privateExports;
 

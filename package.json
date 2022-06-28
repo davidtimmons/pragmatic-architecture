@@ -21,8 +21,8 @@
     "start:prod": "NODE_ENV=production ts-node app/index.ts",
     "start:dev": "NODE_ENV=development ts-node app/index.ts",
     "test": "npm run test:standard && npm run test:db",
-    "test:standard": "ava ./app/**/*/*.test.ts",
-    "test:db": "ava --serial ./app/**/*/*.db-test.ts"
+    "test:standard": "ava **/tests/*.test.*",
+    "test:db": "ava --serial **/tests/*.db-test.*"
   },
   "dependencies": {
     "dotenv": "^16.0.1",

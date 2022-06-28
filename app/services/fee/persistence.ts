@@ -31,4 +31,5 @@ async function getMarketplaceFee(): PromisedResult<number, TFailureModes> {
   return maybeFeeRecords.match<TMaybeFee>(handleSuccess, Infrastructure.handleFailure);
 }
 
+export type { TFailureModes };
 export default { getMarketplaceFee };

@@ -51,4 +51,5 @@ async function createTransaction(
   return maybeRunResult.match<TMaybeRunResult>(handleSuccess, Infrastructure.handleFailure);
 }
 
+export type { TFailureModes };
 export default { createTransaction };

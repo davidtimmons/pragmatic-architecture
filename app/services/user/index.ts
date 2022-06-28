@@ -1,2 +1,2 @@
-export type { TUserRecord } from "./persistence";
+export type { TFailureModes, TUserRecord } from "./persistence";
 export { default } from "./logic";
