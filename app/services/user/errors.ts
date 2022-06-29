@@ -5,7 +5,8 @@ import { TGenericFailure } from "../../infrastructure";
 type TUserErrorType =
   | "FAILED_TO_CREATE_USER"
   | "FAILED_TO_RETRIEVE_USER"
-  | "FAILED_TO_SET_ACCOUNT_BALANCE";
+  | "FAILED_TO_SET_ACCOUNT_BALANCE"
+  | "INCORRECT_ACCOUNT_BALANCE";
 
 type TFailure = TGenericFailure<TUserErrorType>;
 
@@ -39,6 +40,14 @@ function defineFailure(errorType: TUserErrorType, error?: Error): TFailure {
       return {
         type: errorType,
         reason: "Failed to update the account balance associated with the specified user",
+        error,
+      };
+      break;
+
+    case "INCORRECT_ACCOUNT_BALANCE":
+      return {
+        type: errorType,
+        reason: "Specified change to the account balance is incorrect",
         error,
       };
       break;

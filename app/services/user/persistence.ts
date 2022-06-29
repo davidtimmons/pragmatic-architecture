@@ -11,19 +11,24 @@ type TUser = {
   email: string;
 };
 
-export type TUserRecord = TUser & {
+type TUserRecord = TUser & {
   id: number;
   balance: number;
 };
+
+type TFailureModes = TFailure | TDatabaseFailure;
+type TMaybeRunResult = TMatch<TDbRunResult, TFailureModes>;
+type TMaybeUser = TMatch<TUserRecord, TFailureModes>;
 
 type TGetUserOptions = {
   id?: number;
   email?: string;
 };
 
-type TFailureModes = TFailure | TDatabaseFailure;
-type TMaybeRunResult = TMatch<TDbRunResult, TFailureModes>;
-type TMaybeUser = TMatch<TUserRecord, TFailureModes>;
+type TSetAccountBalance = (
+  userId: number,
+  balance: number
+) => PromisedResult<TDbRunResult, TFailureModes>;
 
 /// LOGIC ///
 
@@ -94,10 +99,7 @@ async function getUser(options: TGetUserOptions): PromisedResult<TUserRecord, TF
  * @param balance - New account balance for this user
  * @returns
  */
-async function setAccountBalance(
-  userId: number,
-  balance: number
-): PromisedResult<TDbRunResult, TFailureModes> {
+const setAccountBalance: TSetAccountBalance = async (userId, balance) => {
   const maybeRunResult = await Database.run(
     "UPDATE User SET balance=? WHERE id=?",
     balance,
@@ -113,9 +115,9 @@ async function setAccountBalance(
   };
 
   return maybeRunResult.match<TMaybeRunResult>(handleSuccess, Infrastructure.handleFailure);
-}
+};
 
-export type { TFailureModes };
+export type { TFailureModes, TSetAccountBalance, TUserRecord };
 export default {
   createUser,
   getUser,

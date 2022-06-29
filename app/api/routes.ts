@@ -1,145 +1,133 @@
-import Express, {
-  Request as TRequest,
-  Response as TResponse,
-  NextFunction as TNextFunction,
-} from "express";
+import Express, { Request as TRequest, Response as TResponse } from "express";
+import { Result } from "neverthrow";
 import User from "../services/user";
 import Widget from "../services/widget";
 import PurchaseWidget from "../workflows/purchase-widget";
+import ErrorResultHandler, { TFailure } from "./error-result-handler";
 
 const router = Express.Router();
 
-/// USERS ///
+/// TYPES ///
 
-router.post("/users", async (req: TRequest, res: TResponse) => {
-  const { email, first_name, last_name } = req.body;
+type TSendResponseOptions<T> = {
+  res: TResponse;
+  maybeData: Result<T, TFailure>;
+  shouldSendData: boolean;
+  successStatusCode: number;
+  successMessage: string;
+};
 
-  const maybeError = await User.createUser({
-    email,
-    first_name,
-    last_name,
-  });
+/// LOGIC ///
 
-  if (maybeError instanceof Error) {
-    res.status(500).json({
-      status: 500,
-      message: maybeError.message,
-    });
+function sendResponse<T>(options: TSendResponseOptions<T>) {
+  const { res, maybeData, shouldSendData, successStatusCode, successMessage } = options;
+
+  if (maybeData.isErr()) {
+    const response = ErrorResultHandler.main(maybeData.error);
+    res.status(response.error.status).json(response);
   } else {
-    res.status(201).json({
-      status: 201,
-      message: "Successfully created a new user",
+    const data = shouldSendData ? maybeData.value : undefined;
+    res.status(successStatusCode).json({
+      status: successStatusCode,
+      message: successMessage,
+      data,
     });
   }
+}
+
+//== USERS ==//
+
+router.post("/users", async (req: TRequest, res: TResponse) => {
+  const maybeData = await User.createUser({
+    email: req.body.email,
+    first_name: req.body.first_name,
+    last_name: req.body.last_name,
+  });
+
+  sendResponse({
+    res,
+    maybeData,
+    shouldSendData: false,
+    successStatusCode: 201,
+    successMessage: "Successfully created a new user",
+  });
 });
 
 router
-  .route("/users/:userId")
+  .route("/users/:user_id")
 
   .get(async (req: TRequest, res: TResponse) => {
-    const maybeUser = await User.getUser({ id: Number(req.params.userId) });
+    const maybeData = await User.getUser({ id: Number(req.params.user_id) });
 
-    if (maybeUser instanceof Error) {
-      res.status(500).json({
-        status: 500,
-        message: maybeUser.message,
-      });
-    } else {
-      res.status(200).json({
-        status: 200,
-        message: "Successfully retrieved user",
-        data: maybeUser,
-      });
-    }
+    sendResponse({
+      res,
+      maybeData,
+      shouldSendData: true,
+      successStatusCode: 200,
+      successMessage: "Successfully retrieved user",
+    });
   })
 
-  .patch(async (req: TRequest, res: TResponse, next: TNextFunction) => {
-    const userId = Number(req.params.userId);
-    const { balance } = req.body;
+  .patch(async (req: TRequest, res: TResponse) => {
+    const maybeData = await User.setAccountBalance(
+      Number(req.params.user_id),
+      Number(req.body.balance)
+    );
 
-    if (!balance || balance < 0) {
-      res.status(400).json({
-        status: 400,
-        message: "The request was invalid",
-      });
-      return next();
-    }
-
-    const maybeError = await User.updateBalance(userId, balance);
-
-    if (maybeError instanceof Error) {
-      res.status(500).json({
-        status: 500,
-        message: maybeError.message,
-      });
-    } else {
-      res.status(200).json({
-        status: 200,
-        message: "Successfully updated user balance",
-      });
-    }
+    sendResponse({
+      res,
+      maybeData,
+      shouldSendData: false,
+      successStatusCode: 200,
+      successMessage: "Successfully updated user balance",
+    });
   });
 
-/// WIDGETS ///
+//== WIDGETS ==//
 
 router.post("/widgets", async (req: TRequest, res: TResponse) => {
-  const { id_seller, description, price } = req.body;
-
-  const maybeError = await Widget.createWidget({
-    id_seller,
-    description,
-    price,
+  const maybeData = await Widget.createWidget({
+    id_seller: Number(req.body.id_seller),
+    description: req.body.description,
+    price: Number(req.body.price),
   });
 
-  if (maybeError instanceof Error) {
-    res.status(500).json({
-      status: 500,
-      message: maybeError.message,
-    });
-  } else {
-    res.status(201).json({
-      status: 201,
-      message: "Successfully created a new widget",
-    });
-  }
+  sendResponse({
+    res,
+    maybeData,
+    shouldSendData: false,
+    successStatusCode: 201,
+    successMessage: "Successfully created a new widget",
+  });
 });
 
-router.get("/widgets/:widgetId", async (req: TRequest, res: TResponse) => {
-  const maybeWidget = await Widget.getWidget(Number(req.params.widgetId));
+router.get("/widgets/:widget_id", async (req: TRequest, res: TResponse) => {
+  const maybeData = await Widget.getWidget(Number(req.params.widget_id));
 
-  if (maybeWidget instanceof Error) {
-    res.status(500).json({
-      status: 500,
-      message: maybeWidget.message,
-    });
-  } else {
-    res.status(200).json({
-      status: 200,
-      message: "Successfully retrieved widget",
-      data: maybeWidget,
-    });
-  }
+  sendResponse({
+    res,
+    maybeData,
+    shouldSendData: true,
+    successStatusCode: 200,
+    successMessage: "Successfully retrieved widget",
+  });
 });
 
-/// WORKFLOWS ///
+//== WORKFLOWS ==//
 
-router.post("/widgets/:widgetId", async (req: TRequest, res: TResponse) => {
-  const { buyer_id: buyerId } = req.body;
-  const widgetId = Number(req.params.widgetId);
+router.post("/widgets/:widget_id", async (req: TRequest, res: TResponse) => {
+  const maybeData = await PurchaseWidget.main(
+    Number(req.body.buyer_id),
+    Number(req.params.widget_id)
+  );
 
-  const maybeError = await PurchaseWidget.purchaseWidget(buyerId, widgetId);
-
-  if (maybeError instanceof Error) {
-    res.status(500).json({
-      status: 500,
-      message: maybeError.message,
-    });
-  } else {
-    res.status(200).json({
-      status: 200,
-      message: "Successfully completed the widget purchase",
-    });
-  }
+  sendResponse({
+    res,
+    maybeData,
+    shouldSendData: false,
+    successStatusCode: 200,
+    successMessage: "Successfully completed the widget purchase",
+  });
 });
 
 export default router;

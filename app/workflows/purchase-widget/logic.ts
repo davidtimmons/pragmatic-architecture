@@ -38,10 +38,7 @@ type TFailureModes =
  * @param buyerId - ID associated with the user buying this widget
  * @param widgetId - ID associated with this widget
  */
-async function purchaseWidget(
-  buyerId: number,
-  widgetId: number
-): PromisedResult<void, TFailureModes> {
+async function main(buyerId: number, widgetId: number): PromisedResult<void, TFailureModes> {
   // Get all entities required for this transaction.
   const maybeBuyer = await User.getUser({ id: buyerId });
   if (maybeBuyer.isErr()) return maybeBuyer as TError<TUserFailureModes>;
@@ -111,4 +108,4 @@ export const privateExports = {
   calculateBalances,
 };
 
-export default { purchaseWidget };
+export default { main };

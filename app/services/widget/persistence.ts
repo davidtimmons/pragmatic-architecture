@@ -11,7 +11,7 @@ type TWidget = {
   price: number;
 };
 
-export type TWidgetRecord = TWidget & {
+type TWidgetRecord = TWidget & {
   id: number;
   purchased: 0 | 1;
 };
@@ -100,5 +100,5 @@ async function setPurchased(
   return maybeRunResult.match<TMaybeRunResult>(handleSuccess, Infrastructure.handleFailure);
 }
 
-export type { TFailureModes };
+export type { TFailureModes, TWidgetRecord };
 export default { createWidget, getWidget, setPurchased };

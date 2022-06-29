@@ -5,8 +5,6 @@ import { TWidgetRecord } from "../../../services/widget";
 import { TTransactionRecord } from "../../../services/transaction";
 import PurchaseWidget from "..";
 
-const { purchaseWidget } = PurchaseWidget;
-
 test.beforeEach("Insert users and a widget into the database", async () => {
   // The tables should be empty, so the records should have ids starting at 1.
   await Db.run(
@@ -53,7 +51,7 @@ test.afterEach("Reset the tables", async () => {
 
 test("purhaseWidget() should correctly complete a transaction", async (t) => {
   // Run the workflow.
-  const maybeResult = await purchaseWidget(2, 1);
+  const maybeResult = await PurchaseWidget.main(2, 1);
   if (maybeResult.isErr()) throw maybeResult.error.error;
 
   // Confirm there are no database errors.
@@ -90,7 +88,7 @@ test("purhaseWidget() should correctly complete a transaction", async (t) => {
 
 test("purhaseWidget() should not allow a purchased widget to be re-purchased", async (t) => {
   await Db.run("UPDATE Widget SET purchased=? WHERE id=?", 1, 1);
-  const result = await purchaseWidget(2, 1);
+  const result = await PurchaseWidget.main(2, 1);
   t.true(result.isErr());
   t.is(result._unsafeUnwrapErr().type, "WIDGET_IS_UNAVAILABLE");
 });
@@ -98,13 +96,13 @@ test("purhaseWidget() should not allow a purchased widget to be re-purchased", a
 test("purhaseWidget() should not allow a transaction with insufficient funds", async (t) => {
   await Db.run("UPDATE User SET balance=? WHERE id=?", 0.0, 2);
 
-  const result = await purchaseWidget(2, 1);
+  const result = await PurchaseWidget.main(2, 1);
   t.true(result.isErr());
   t.is(result._unsafeUnwrapErr().type, "INSUFFICIENT_FUNDS");
 });
 
 test("purhaseWidget() should not allow a buyer to purchase an owned widget", async (t) => {
-  const result = await purchaseWidget(1, 1);
+  const result = await PurchaseWidget.main(1, 1);
   t.true(result.isErr());
   t.is(result._unsafeUnwrapErr().type, "BUYER_OWNS_WIDGET");
 });
