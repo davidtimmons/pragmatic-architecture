@@ -48,9 +48,12 @@ async function main(buyerId: number, widgetId: number): PromisedResult<void, TFa
   if (maybeWidget.isErr()) return maybeWidget as TError<TWidgetFailureModes>;
   const widget = maybeWidget.value;
 
-  if (widget.purchased) return err(defineFailure("WIDGET_IS_UNAVAILABLE"));
-  if (buyer.balance < widget.price) return err(defineFailure("INSUFFICIENT_FUNDS"));
-  if (buyer.id === widget.id_seller) return err(defineFailure("BUYER_OWNS_WIDGET"));
+  if (widget.purchased)
+    return err(defineFailure("WIDGET_IS_UNAVAILABLE", new Error(JSON.stringify(widget))));
+  if (buyer.balance < widget.price)
+    return err(defineFailure("INSUFFICIENT_FUNDS", new Error(JSON.stringify(buyer))));
+  if (buyer.id === widget.id_seller)
+    return err(defineFailure("BUYER_OWNS_WIDGET", new Error(JSON.stringify(buyer))));
 
   const maybeSeller = await User.getUser({ id: widget.id_seller });
   if (maybeSeller.isErr()) return maybeSeller as TError<TUserFailureModes>;

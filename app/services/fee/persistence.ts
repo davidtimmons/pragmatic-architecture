@@ -22,7 +22,9 @@ async function getMarketplaceFee(): PromisedResult<number, TFailureModes> {
 
   const handleSuccess = (feeRecords: TFeeRecord[]) => {
     if (feeRecords.length < 1 || !(field in feeRecords[0])) {
-      return err(defineFailure("FAILED_TO_RETRIEVE_MARKETPLACE_FEE"));
+      return err(
+        defineFailure("FAILED_TO_RETRIEVE_MARKETPLACE_FEE", new Error(JSON.stringify(feeRecords)))
+      );
     } else {
       return ok(feeRecords[0].marketplace);
     }

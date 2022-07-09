@@ -44,7 +44,9 @@ async function createTransaction(
     if (result?.lastID && result.lastID > 0) {
       return ok(result);
     } else {
-      return err(defineFailure("FAILED_TO_CREATE_TRANSACTION"));
+      return err(
+        defineFailure("FAILED_TO_CREATE_TRANSACTION", new Error(JSON.stringify(transaction)))
+      );
     }
   };
 

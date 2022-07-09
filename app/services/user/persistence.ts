@@ -52,7 +52,7 @@ async function createUser(account: TUser): PromisedResult<TDbRunResult, TFailure
     if (result?.lastID && result.lastID > 0) {
       return ok(result);
     } else {
-      return err(defineFailure("FAILED_TO_CREATE_USER"));
+      return err(defineFailure("FAILED_TO_CREATE_USER", new Error(JSON.stringify(account))));
     }
   };
 
@@ -66,7 +66,7 @@ async function createUser(account: TUser): PromisedResult<TDbRunResult, TFailure
  */
 async function getUser(options: TGetUserOptions): PromisedResult<TUserRecord, TFailureModes> {
   let maybeUserRecords: Result<TUserRecord[], TFailureModes> = err(
-    defineFailure("FAILED_TO_RETRIEVE_USER")
+    defineFailure("FAILED_TO_RETRIEVE_USER", new Error(JSON.stringify(options)))
   );
 
   if (options.hasOwnProperty("id")) {
@@ -83,7 +83,7 @@ async function getUser(options: TGetUserOptions): PromisedResult<TUserRecord, TF
 
   const handleSuccess = (userRecords: TUserRecord[]) => {
     if (userRecords.length < 1) {
-      return err(defineFailure("FAILED_TO_RETRIEVE_USER"));
+      return err(defineFailure("FAILED_TO_RETRIEVE_USER", new Error(JSON.stringify(options))));
     } else {
       return ok(userRecords[0]);
     }
@@ -110,7 +110,9 @@ const setAccountBalance: TSetAccountBalance = async (userId, balance) => {
     if (result?.changes && result.changes > 0) {
       return ok(result);
     } else {
-      return err(defineFailure("FAILED_TO_SET_ACCOUNT_BALANCE"));
+      return err(
+        defineFailure("FAILED_TO_SET_ACCOUNT_BALANCE", new Error(`${userId}, ${balance}`))
+      );
     }
   };
 

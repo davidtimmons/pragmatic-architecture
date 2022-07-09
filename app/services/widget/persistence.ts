@@ -1,4 +1,4 @@
-import { Result, err, ok } from "neverthrow";
+import { err, ok } from "neverthrow";
 import Database, { TFailure as TDatabaseFailure, TDbRunResult } from "../../database";
 import Infrastructure, { PromisedResult, TMatch } from "../../infrastructure";
 import { defineFailure, TFailure } from "./errors";
@@ -42,7 +42,7 @@ async function createWidget(widget: TWidget): PromisedResult<TDbRunResult, TFail
     if (result.lastID && result.lastID > 0) {
       return ok(result);
     } else {
-      return err(defineFailure("FAILED_TO_CREATE_WIDGET"));
+      return err(defineFailure("FAILED_TO_CREATE_WIDGET", new Error(JSON.stringify(widget))));
     }
   };
 
@@ -62,7 +62,7 @@ async function getWidget(widgetId: number): PromisedResult<TWidgetRecord, TFailu
 
   const handleSuccess = (widgetRecords: TWidgetRecord[]) => {
     if (widgetRecords.length < 1) {
-      return err(defineFailure("FAILED_TO_RETRIEVE_WIDGET"));
+      return err(defineFailure("FAILED_TO_RETRIEVE_WIDGET", new Error(`${widgetId}`)));
     } else {
       return ok(widgetRecords[0]);
     }
@@ -93,7 +93,9 @@ async function setPurchased(
     if (result?.changes && result.changes > 0) {
       return ok(result);
     } else {
-      return err(defineFailure("FAILED_TO_SET_PURCHASED_STATUS"));
+      return err(
+        defineFailure("FAILED_TO_SET_PURCHASED_STATUS", new Error(`${widgetId}, ${purchased}`))
+      );
     }
   };
 
