@@ -1,21 +1,61 @@
-# Pragmatic Architecture
+# Pragmatic Monolith Architecture
 
-- **Author:** David Timmons
-- **Description:** A sample project demonstrating a pragmatic, monolithic architecture for web applications
-- **Objective:** Write a marketplace application where users can buy and sell widgets
+This is a sample project demonstrating a pragmatic monolith architecture for web applications.
+
+The project features a simple marketplace where users can buy and sell widgets. However, the domain specific logic is intentionally minimal, existing only to demonstrate the broader concepts. The point of this example is to show a possible architecture for small to mid-sized applications that is easy to understand, easy to maintain, and easy to scale. To that end, the architecture incorporates a strict separation of concerns enabling an engineering team to gradually break off pieces into independent applications as bottlenecks become apparent through load testing or production usage of a specific application. The goal of the design is to start simple but retain the flexibility to grow in the direction needed as the application scales.
+
+## Contents
+
+- [Simplifying Assumptions](#simplifying-assumptions)
+- [Design Decisions](#design-decisions)
+- [Installation](#installation)
+  - [Running the Server](#running-the-server)
+- [Automated Tests](#automated-tests)
+- [Manual API Tests](#manual-api-tests)
+- [Project Dependencies](#project-dependencies)
+
+## Simplifying Assumptions
+
+This is a simple application. It is not intended to include every feature and security measure required of a real world application. Accordingly, the following design considerations are in effect:
+
+- Every user is honest.
+  - *No authentication.*
+  - *No authorization.*
+  - *No protected API routes.*
+  - *No accounting for users inappropriately modifying users or widgets.*
+  - *No scrubbing external data before feeding it into the application.*
+  - *No keeping the .env environment file a secret.*
+- Every user is careful.
+  - *No checking API requests for the correct data.*
+  - *No checking API requests for malformed content.*
+- Traffic levels will start small and have no spikes.
+  - *A monolithic architecture is suitable.*
+  - *A lightweight database is suitable.*
+  - *No database connection pools.*
+  - *No database sharding, replication, or read/write splits.*
+- Not all code needs comments.
+  - *Simple code can stand on its own.*
+  - *Well-tested code can stand on its own.*
+  - *Code for "internal" audiences does not* always *need as much documentation as code for "external" audiences.*
+
+## Design Decisions
+
+This project documents its structure through *Architecture Decision Records.* These are the decisions that "affect the structure, non-functional characteristics, dependencies, interfaces, or construction techniques" of the application (see "[Documenting Architecture Decisions](https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions)" by Michael Nygard.) For the decisions affecting this project, see [docs/adr](./docs/adr).
 
 ## Installation
+
+Installation is unnecessary for the purposes of this project. However, this is still a working application that anyone can run if desired. Follow these steps to get started:
 
 1. Install the latest LTS version of [Node.js](https://nodejs.org/en/).
 2. Navigate to the root directory of this project.
 3. Run `npm install` from the console.
 
-## Running the Server
+### Running the Server
 
 - Run `npm start` to launch the *production* server.
 - Run `npm run start:dev` to launch the *development* server.
 
-## Unit & Integration Tests
+## Automated Tests
 
 *Note: The server does NOT need to be running to run these tests.*
 
@@ -23,7 +63,7 @@
 - Run `npm run test:standard` to run all tests that do *not* require the database.
 - Run `npm run test:db` to run all tests that *do* require the database.
 
-## API Tests
+## Manual API Tests
 
 *Note: The server DOES need to be running to run these commands.*
 
@@ -65,92 +105,11 @@ curl --header "Content-Type: application/json" \
   http://localhost:8080/widgets/1
 ```
 
-## Assumptions
-
-- Everyone is honest.
-  - *No authentication.*
-  - *No authorization.*
-  - *No protected API routes.*
-  - *No accounting for users inappropriately modifying users or widgets.*
-  - *No scrubbing external data before feeding it into the application.*
-  - *No keeping the .env environment file a secret.*
-- Everyone is careful.
-  - *No checking API requests for the correct data.*
-  - *No checking API requests for malformed content.*
-- Traffic levels will be small and have no spikes.
-  - *A monolithic architecture is suitable.*
-  - *A lightweight database is suitable.*
-  - *No database connection pools.*
-  - *No database sharding, replication, or read/write splits.*
-- Not all code needs comments.
-  - *Simple code can stand on its own.*
-  - *Well-tested code can stand on its own.*
-  - *Code for "internal" audiences does not* always *need as much documentation as code for "external" audiences.*
-
-## Design Decisions
-
-### Split app functions into *services*, *workflows*, *database*, and *API* layers
-
-- The API layer can call services or workflows but not the database.
-- The database layer presents a facade to enable data access.
-  - *Other layers are unaware of the underlying database technologies.*
-  - *Other layers work with the database through the facade.*
-- Services are fully encapsulated from all other services.
-  - *Services cannot call other services.*
-  - *Services can own their own database table.*
-  - *Services cannot call database tables they do not own.*
-- Workflows are the communication layer between services.
-  - *Workflows can call services.*
-  - *Workflows cannot call other workflows.*
-  - *Workflows can own their own database tables.*
-  - *Workflows cannot call database tables they do not own.*
-
-#### Reasoning
-
-Splitting the application in this way is intended to minimize coupling between the different components. Highly cohesive, minimally coupled components are easier to maintain and refactor without introducing bugs into the application. Additionally, minimally coupled components ease the burden of transitioning from a monolith architecture to a distributed architecture as the application grows large enough to require horizontal scaling.
-
-### Build the API as a monolith instead of distributed among the services
-
-- The API is its own layer.
-
-#### Reasoning
-
-Services and workflows could own their own API endpoints. That is a very reasonable choice. However, keeping the API unified as a single layer allows it to be handled separately from the application. It becomes its own business product. Designing an API for public (and sometimes private) use has user experience considerations that, in some circumstances, are every bit as important as the user interface. Designing a coherent API can be easier when its pieces are not sprinkled throughout the application.
-
-### Bubble errors from the bottom to the top of the call stack
-
-- Errors are not designed to crash the application.
-  - *Everything, from database access to malformed input, may occasionally generate an error.*
-  - *Useful error messages can be communicated back through the API to the end user.*
-
-#### Reasoning
-
-Designing the application to bubble errors creates a little more clutter in the code, but it enables the system design to communicate application status back to the end user in whatever granularity the developer desires. This can improve the user experience. Additionally, it provides a framework to intentionally communicate errors in such a way that fixing production bugs becomes easier. Some bugs make their way to users, and bugs with useful error messages are easier to triage.
-
-### Apply consistent organization for each component
-
-- Data access functions go in a *persistence* file.
-- Application logic functions go in a *logic* file.
-- Public interfaces go in an *index* file.
-
-#### Reasoning
-
-Consistent organization makes it easier to orient within a large codebase. It also makes it easier to know where to find the public interface that a component exposes. While TypeScript/JavaScript cannot enforce the concepts of "public" and "private" as easily as other languages, hints can be provided through code structure and file naming.
-
-### Test persistence functions using an isolated test group targeting a test database
-
-- Tests that can run concurrently go in a *\*.test.ts* file named after the file it tests.
-- Database tests go in a *\*.db-test.ts* file named after the file it tests.
-- The same database migration files will build the schema in both the production and test databases.
-
-#### Reasoning
-
-Carefully naming test files enables the developer to isolate test groups into slow and fast tests or tests that are effectively stateless versus tests that require extensive state. Testing data access functions can easily lead to race conditions when the testing framework runs tests concurrently. Separating stateful tests into their own group allows the test runner to specially accommodate them. Additionally, testing against a special purpose database makes it easier to test stateful functions without inadvertently corrupting the state of an important data store.
-
-## Dependencies
+## Project Dependencies
 
 - **dotenv:** Provides a framework to configure the application environment
 - **express:** Common Node.js API framework
+- **neverthrow:** Expressive type framework to handle possible error results
 - **SQLite database:** File-based, SQL-compliant database perfect for prototyping
 - **sqlite3:** Database driver for SQLite
 - **sqlite:** Works with sqlite3 to enable Promise chaining and database migrations
