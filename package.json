@@ -1,17 +1,17 @@
 {
-  "name": "pragmatic-architecture",
+  "name": "pragmatic-monolith-architecture",
   "version": "1.0.0",
-  "description": "A sample project demonstrating a pragmatic, monolithic architecture for web applications",
+  "description": "A sample project demonstrating a pragmatic monolith architecture for web applications",
   "author": "David Timmons <github@timmons.io>",
   "main": "app/index.ts",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/davidtimmons/pragmatic-architecture.git"
+    "url": "git+https://github.com/davidtimmons/pragmatic-monolith-architecture.git"
   },
   "bugs": {
-    "url": "https://github.com/davidtimmons/pragmatic-architecture/issues"
+    "url": "https://github.com/davidtimmons/pragmatic-monolith-architecture/issues"
   },
-  "homepage": "https://github.com/davidtimmons/pragmatic-architecture#readme",
+  "homepage": "https://github.com/davidtimmons/pragmatic-monolith-architecture#readme",
   "scripts": {
     "format": "prettier --write ./app",
     "migrate": "npm run migrate:prod && npm run migrate:dev",
@@ -25,19 +25,19 @@
     "test:db": "ava --serial **/tests/*.db-test.*"
   },
   "dependencies": {
+    "@types/express": "^4.17.13",
+    "@types/node": "^18.0.3",
+    "@types/sqlite3": "^3.1.8",
     "dotenv": "^16.0.1",
     "express": "^4.18.1",
     "neverthrow": "^4.3.1",
     "sqlite": "^4.1.1",
-    "sqlite3": "^5.0.8"
+    "sqlite3": "^5.0.8",
+    "ts-node": "^10.8.2",
+    "typescript": "^4.7.4"
   },
   "devDependencies": {
-    "@types/express": "^4.17.13",
-    "@types/node": "^17.0.41",
-    "@types/sqlite3": "^3.1.8",
     "ava": "^4.3.0",
-    "prettier": "2.6.2",
-    "ts-node": "^10.8.1",
-    "typescript": "^4.7.3"
+    "prettier": "^2.7.1"
   }
 }
