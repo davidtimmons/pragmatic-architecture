@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "A sample project demonstrating a pragmatic monolith architecture for web applications",
   "author": "David Timmons <github@timmons.io>",
+  "license": "MIT",
   "main": "app/index.ts",
   "repository": {
     "type": "git",
