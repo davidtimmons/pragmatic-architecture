@@ -6,12 +6,12 @@ Accepted
 
 ## Context
 
-Features that require access to the database can be difficult to test. In the worst outcomes, running database-related tests can lead to intermittently failing tests when the logic is actually correct as the database state unexpectedly changes and data races occur. Mocking the database is an option, but that requires considerable work as the application grows. Dependency injection is another option for the functions to be tested, but this can require rewriting features to support that concept. Arguably the simplest approach is to isolate tests that need the database and run them against a live test database that perfectly mirrors the schema found in the production database.
+Features that require access to the database can be difficult to test. In the worst outcomes, running database-related tests can lead to intermittently failing tests despite correct logic when the database state unexpectedly changes and data races occur. Mocking the database is an option, but that requires considerable work as the application grows. Dependency injection is another option, but this can require explicitly rewriting features to support it. Arguably the simplest approach is to isolate tests that need the database and run them against a live test database that perfectly mirrors the schema found in the production database.
 
 ## Decision
 
-- Tests that can run concurrently go in a *\*.test.\** file named after the file it tests.
-- Database tests go in a *\*.db-test.\** file named after the file it tests.
+- Tests that can run concurrently go in *\*.test.\** files named after the files they test.
+- Database tests go in *\*.db-test.\** files named after the files they test.
 - The same database migration files build a schema in both the production and test databases.
 
 ## Consequences

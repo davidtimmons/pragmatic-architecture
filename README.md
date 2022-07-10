@@ -2,17 +2,20 @@
 
 This is a sample project demonstrating a pragmatic monolith architecture for web applications.
 
-The project features a simple marketplace where users can buy and sell widgets. However, the domain specific logic is intentionally minimal, existing only to demonstrate the broader concepts. The point of this example is to show a possible architecture for small to mid-sized applications that is easy to understand, easy to maintain, and easy to scale. To that end, the architecture incorporates a strict separation of concerns enabling an engineering team to gradually break off pieces into independent applications as bottlenecks become apparent through load testing or production usage of a specific application. The goal of the design is to start simple but retain the flexibility to grow in the direction needed as the application scales.
-
 ## Contents
 
+- [Overview](#overview)
 - [Simplifying Assumptions](#simplifying-assumptions)
 - [Design Decisions](#design-decisions)
 - [Installation](#installation)
   - [Running the Server](#running-the-server)
-- [Automated Tests](#automated-tests)
-- [Manual API Tests](#manual-api-tests)
+  - [Automated Tests](#automated-tests)
+  - [Manual API Tests](#manual-api-tests)
 - [Project Dependencies](#project-dependencies)
+
+## Overview
+
+This project features a simple marketplace where users can buy and sell widgets. Domain specific logic is intentionally minimal, existing only to demonstrate the broader concepts. The point of this example is to show a possible architecture for small to mid-sized applications that is easy to understand, easy to maintain, and easy to scale. To that end, this architecture incorporates a strict separation of concerns enabling an engineering team to gradually break off components from the original application into independent applications as bottlenecks become apparent through stress testing or production usage. The overall goal of this design is to start simple but retain the flexibility to grow in the direction needed as an application scales.
 
 ## Simplifying Assumptions
 
@@ -40,11 +43,11 @@ This is a simple application. It is not intended to include every feature and se
 
 ## Design Decisions
 
-This project documents its structure through *Architecture Decision Records.* These are the decisions that "affect the structure, non-functional characteristics, dependencies, interfaces, or construction techniques" of the application (see "[Documenting Architecture Decisions](https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions)" by Michael Nygard.) For the decisions affecting this project, see [docs/adr](./docs/adr).
+This project includes "Architecture Decision Records" (ADR) to document its structure. These are the decisions that "affect the structure, non-functional characteristics, dependencies, interfaces, or construction techniques" of the application (see "[Documenting Architecture Decisions](https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions)" by Michael Nygard.) For the design decisions affecting this project, see [docs/adr](./docs/adr).
 
 ## Installation
 
-Installation is unnecessary for the purposes of this project. However, this is still a working application that anyone can run if desired. Follow these steps to get started:
+Installation is unnecessary for the purpose of this example project. However, this is still a working application that can be run if desired. Follow these steps to get started:
 
 1. Install the latest LTS version of [Node.js](https://nodejs.org/en/).
 2. Navigate to the root directory of this project.
@@ -55,7 +58,7 @@ Installation is unnecessary for the purposes of this project. However, this is s
 - Run `npm start` to launch the *production* server.
 - Run `npm run start:dev` to launch the *development* server.
 
-## Automated Tests
+### Automated Tests
 
 *Note: The server does NOT need to be running to run these tests.*
 
@@ -63,7 +66,7 @@ Installation is unnecessary for the purposes of this project. However, this is s
 - Run `npm run test:standard` to run all tests that do *not* require the database.
 - Run `npm run test:db` to run all tests that *do* require the database.
 
-## Manual API Tests
+### Manual API Tests
 
 *Note: The server DOES need to be running to run these commands.*
 
@@ -73,12 +76,12 @@ Use these *curl* commands to probe the different API routes found in this applic
 # Users:
 curl --header "Content-Type: application/json" \
   --request POST \
-  --data '{"first_name":"Babe", "last_name":"Ruth", "email":"b.ruth@example.com"}' \
+  --data '{"first_name":"Babe", "last_name":"Ruth", "email":"bruth@example.com"}' \
   http://localhost:8080/users
 
 curl --header "Content-Type: application/json" \
   --request POST \
-  --data '{"first_name":"Ryan", "last_name":"Laukat", "email":"r.laukat@example.com"}' \
+  --data '{"first_name":"Ryan", "last_name":"Laukat", "email":"rlaukat@example.com"}' \
   http://localhost:8080/users
 
 curl --header "Content-Type: application/json" \
@@ -112,7 +115,7 @@ curl --header "Content-Type: application/json" \
 - **neverthrow:** Expressive type framework to handle possible error results
 - **SQLite database:** File-based, SQL-compliant database perfect for prototyping
 - **sqlite3:** Database driver for SQLite
-- **sqlite:** Works with sqlite3 to enable Promise chaining and database migrations
+- **sqlite:** Works with sqlite3 to enable promise chaining and database migrations
 - **@types/express:** Provides TypeScript definitions for Express.js
 - **@types/node:** Provides TypeScript definitions for Node.js
 - **@types/sqlite3:** Provides TypeScript definitions for the sqlite3 database driver

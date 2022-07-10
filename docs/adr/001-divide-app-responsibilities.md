@@ -38,4 +38,4 @@ Inappropriate coupling causes an application to become unwieldy and difficult to
 
 ## Consequences
 
-Splitting the application in this way is intended to minimize coupling between the different components. Highly cohesive, minimally coupled components are easier to maintain and refactor without introducing bugs into the application. Additionally, minimally coupled components ease the burden of transitioning from a monolith architecture to a distributed architecture as the application grows large enough to require horizontal scaling.
+Splitting the application in this way is intended to minimize coupling between the different components. Highly cohesive, minimally coupled components are easier to maintain and refactor without introducing bugs into the application. Additionally, minimally coupled components ease the burden of transitioning from a monolith to a distributed architecture as the application grows large enough to require horizontal scaling.
