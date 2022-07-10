@@ -43,11 +43,11 @@ This is a simple application. It is not intended to include every feature and se
 
 ## Design Decisions
 
-This project includes "Architecture Decision Records" (ADR) to document its structure. These are the decisions that "affect the structure, non-functional characteristics, dependencies, interfaces, or construction techniques" of the application (see "[Documenting Architecture Decisions](https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions)" by Michael Nygard.) For the design decisions affecting this project, see [docs/adr](./docs/adr).
+This project includes "Architecture Decision Records" (ADR) to document its structure. These are the decisions that "affect the structure, non-functional characteristics, dependencies, interfaces, or construction techniques" of the application (see "[Documenting Architecture Decisions](https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions)" by Michael Nygard). For the design decisions affecting this project, see [docs/adr](./docs/adr).
 
 ## Installation
 
-Installation is unnecessary for the purpose of this example project. However, this is still a working application that can be run if desired. Follow these steps to get started:
+Installation is unnecessary for the purposes of this example project. However, this is still a working application that interested developers can run if desired. Follow these steps to get started:
 
 1. Install the latest LTS version of [Node.js](https://nodejs.org/en/).
 2. Navigate to the root directory of this project.
